@@ -1,0 +1,111 @@
+---
+title: "A06_Zufallszahlen"
+author: "Jasmin Thevathas"
+date: "8 Juli 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Zufallszahlen
+Diskrete gleichverteilte zufällige Zahlenfolge erzeugen:
+x=Gesamte Möglichkeit
+size=Anzahl gezogen
+```{r}
+#Fairer Würfel 2x gewürfelt:
+sample(x=6, size=2)
+
+#Fairer Würfel 2x gewürfelt ohne zurücklegen (default):
+sample(x=6, size=2, replace=FALSE)
+
+#Fairer Würfel 10x gewürfelt mit zurücklegen:
+sample(x=6, size=10, replace=TRUE)
+
+#Beginn und Schritt �ndern
+#e.g. Beginnt mit 0 und 3er Schritt
+3*(sample(x = 6, size=100, replace=TRUE)-1)
+   
+```
+
+## Zufallszahlen-Sequenz
+Am Anfang zu definieren
+```{r}
+#liefert dieselbe Sequenz von Zufallszahlen
+set.seed(1)
+```
+
+## Aufgabe 6.1 b)
+Absolute und relative Häufigkeit bestimmen
+A = wie h�ufig wurde eine 6 gew�rfelt
+
+```{r Loop_Haufigkeit}
+for (i in 1:5) {
+  print(sample(x = 6, size=i, replace=TRUE))
+}
+```
+
+Häufigkeit bestimmen
+```{r Anzahl}
+size=30
+s <- sample(x = 6, size=size, replace=TRUE)
+print(s)
+which(s==6)
+#Absolute Häufigkeit - Anzahl 6 in Sequenz
+len = length(which(s==6))
+#Relative Häufigkeit
+rel = size/len
+cat("Relative Häufigkeit: ", rel)
+
+```
+
+
+Ich kann ein data.frame generieren und 
+die gewünschten Einträge zeilenweise speichern: 
+
+```{r Haufigkeit}
+df <- data.frame("n"=1,"H_n"=1, "h_n"=1)
+
+for (i in 1:1000) {
+  s <- sample(x = 6, size=i, replace=TRUE)
+  anzahl_6 <- length(which(s==6))
+  df[i, ] <- c(i, anzahl_6, anzahl_6/i )
+ }
+```
+
+
+```{r Plot}
+plot(df$n, df$h_n) 
+```
+
+
+## Aufgabe 6.2
+"unique":man kann die eindeutigen Einträge einer Array bestimmen.(jede zahl nur einmal) 
+"length": Und wenn man die Funktion "length" auf diese anwendet, kann man die Länge der eindeutigen Einträge bestimmten. 
+
+Ich betrachte das Gegenerreignis, 
+nämlich dass alle Geburstage 
+an verschiedenen Tagen stattfinden. 
+
+Logisches Argument, ob alle Geburtstage verschieden sind:
+```{r gegenerreignis}
+#Wieviele
+length(unique(sample(x = 365, size=23, replace=TRUE))) == 23
+```
+
+
+```{r Wiederholungen}
+counter = 0
+for (i in 1:100000) {
+  s <- sample(x = 365, size=23, replace=TRUE)
+  len <- length(unique(sample(x = 365, size=23, replace=TRUE)))
+  if (len == 23) counter = counter + 1
+}
+print(counter)
+```
+
+Die gesuchte Wahrscheinlichkeit ist somit:
+```{r Wahrscheinlichkeit}
+1 - counter/100000 
+```

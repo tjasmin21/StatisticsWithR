@@ -1,0 +1,148 @@
+---
+title: "A07_DiskreteVerteilung"
+author: "Jasmin Thevathas"
+date: "8 Juli 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Binomialverteilung
+
+```{r zufallszahlen_1}
+dbinom(x= 0:2, size=2, prob=0.5)
+
+```
+
+Die Binomialverteilung für den Fall: eine faire Münze wird 2-Mal geworfen. 
+
+Die Zufallsvariable trägt die Werte 0, 1, 2 (nämlich die Anzahl Kopf oder Anzahl Zahl). 
+
+```{r plot_binomial_2}
+x <- 0:2
+y <- dbinom(x, size=2, prob=0.5)
+
+plot(x,y, 
+  xlab="Zufallsvariable x", ylab="Wahrscheinlichkeit")
+lines(x, y, type="h")
+```
+
+Die Verteilungsfunction ist gegeben durch pbinom. Achtung q statt x verwenden (siehe dokumentation ?pbinom)
+
+```{r plot_verteilung_binomial_2}
+
+x <- 0:2
+y <- pbinom(q=x, size = 2, prob = 0.5)
+plot(x, y,  
+  xlab="Zufallsvariable x", ylab="Verteilung") 
+lines(x, y, type="s")
+```
+
+
+Die Binomialverteilung für 20-maligen Wurf mit einer fairen Münze.
+Die Zufallsvariable trägt die Werte 0, 1, ..., 20. 
+
+```{r plot_binomial_20}
+x <- 0:20
+y <- dbinom(x, size = 20, prob = 0.5)
+plot(x, y,  
+  xlab="Zufallsvariable x", ylab="Wahrscheinlichkeit")
+lines(x, y, type="h")
+
+```
+
+Die Verteilungsfunction ist gegeben durch pbinom. Achtung q statt x verwenden (siehe dokumentation ?pbinom)
+
+```{r plot_verteilung_binomial_20}
+
+x <- 0:20
+y <- pbinom(q=0:20, size = 20, prob = 0.5)
+
+plot(x, y,  
+  xlab="Zufallsvariable x", ylab="Verteilung")
+lines(x, y, type="s")
+```
+
+### Erwartungswert und Varianz
+```{r Erwartungswert}
+x <- 0:20
+p <- dbinom(x,20,0.5)
+erwartungswert <- sum(x * p)
+
+erwartungswert
+
+varianz <- sum((x-erwartungswert)^2*p)
+varianz 
+```
+
+### Wahrscheinlichkeiten
+
+Nehmen wir an, dass wir eine Faire Münze 20 mal Werfen und die Zufallsvariable X als Anzahl Kopf definieren. 
+
+Die Wahrscheinlichkeit, dass 10 < X, kann auf verschiedene Arten  berechnet werden:
+
+```{r wahrscheinlichkeit_1}
+
+sum(dbinom(x=11:20,size = 20, prob= 0.5))
+
+1- sum(dbinom(x=0:10,size = 20, prob= 0.5))
+
+1 - pbinom(q=10, size = 20, prob = 0.5)
+ 
+```
+
+
+Und die Wahrscheinlichkeit, dass 10 < X < 15, kann auf 2 Arten berechnet werden:
+
+```{r wahrscheinlichkeit}
+
+sum(dbinom(x=11:14,size = 20, prob= 0.5))
+
+pbinom(q=14, size = 20, prob = 0.5) - 
+  pbinom(q=10, size = 20, prob = 0.5)
+ 
+```
+
+
+## Geometrischeverteilung
+
+Für die Geometrischeverteilung verwenden Sie die Funktionen dgeom und pgeom. Die Zufallsvariable X beschreibt nun die Anzahl Misserfolge vor dem ersten Erfolg. 
+
+```{r geometrische}
+
+x <- 0:20
+prob <- 0.2
+y <- dgeom(x, prob)
+
+plot(x, y, 
+  xlab="Zufallsvariable x", ylab="Wahrscheinlichkeit")
+lines(x, y, type="h")
+
+pgeom(q=x, prob)
+
+z <- pgeom(q=x, prob)
+
+plot(x, z, 
+  xlab="Zufallsvariable x", ylab="Verteilung")
+lines(x, z, type="s")
+```
+
+
+### Geometrischeverteilung: Erwartungswert und Varianz
+
+
+```{r geom_Erwartungswert}
+x <- 0:20
+p <- dgeom(x,prob = 0.5)
+
+
+erwartungswert <- sum(x * p)
+
+erwartungswert
+
+varianz <- sum((x-erwartungswert)^2*p)
+varianz 
+```

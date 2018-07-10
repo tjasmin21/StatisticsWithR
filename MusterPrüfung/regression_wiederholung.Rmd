@@ -1,0 +1,94 @@
+---
+title: "Lösungen Aufgabe Auto"
+author: "Nicht vergessen den Vor- und Nachnamen hier hinzuschreiben"
+date: "17/06/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, libraries, message=FALSE}
+library(gdata)
+library(ggplot2)
+```
+
+
+
+```{r cars}
+#setwd(...)
+
+cars <- read.xls("Auto.xlsx", sheet = 1, header = TRUE)
+head(cars, 15)
+str(cars)
+```
+
+Die Daten sind in der richtigen Format (sonst müsste man sie zuerst entsprechend konvertieren). 
+
+
+
+## Lineare Regression: Fit
+
+```{r regression}
+
+fit <- lm(Distanz ~ Geschwindigkeit, data = cars)
+
+summary(fit)
+```
+
+Der Achsenabschnitt (Intercept) der gefitteten Gerade liegt bei -17.58. Allerdings ist das ensprechende p-Wert mit 0.01 sehr hoch. Die Nullhypothese lautet der Achsenabschnitt ist 0. Das heisst, dass wir die Nullhypothese nicht mit einer Signifikanz von apha = 0.01 verwerfen können. 
+
+Für die Steigung der Gerade (in den Übungsblättern als b bezeichnet) 
+erhalten wir den Wert 0.79 und einen sehr kleinen p-Wert. 
+Das heisst, dass wir die entsprechende Nullhypothese mit sehr höher Sicherheit verwerfen können. Das erhaltene Wert für die Steigung ist Signifikant. 
+
+Der Adjusted R-squared Wert von 0.64 ist relativ tief. Aber es scheint einen deutlichen linearen Zusammenhang zwischen den Daten zu geben. 
+
+Der globale F-test hat einen kleinen p-Wert und daher kann die globale Nullhypothese (a=0 und b=0) mit Sicherheit verworfen werden. 
+
+### Plot
+
+```{r plot linreg}
+
+ggplot(data = cars, aes(x = Geschwindigkeit, y = Distanz)) + 
+  geom_point() +
+  geom_smooth(method = "lm", col = "red")
+
+```
+Interpretation: Der Fit scheint eigentlich gar nicht so schlecht zu  funktionieren. Rein optisch ist es nicht einfach zu beurteilen, ob der Fit gut funktioniert oder nicht. Der Adjusted R-squared Wert wurde bereits oben diskutiert. 
+(Es macht nichts, falls Sie das vergessen haben, aber der tatsächliche Zusammenhang zwischen Bremsweg und Geschwindigkeit ist quadratisch und nicht linear. Das ist in den Daten halt ersichtlich.)
+
+## Q-Q Plot der Fehlerterme
+
+```{r qqplot}
+qqnorm(fit$residuals)
+qqline(fit$residuals)
+```
+
+Interpretation der Q-Q Plot: Die Fehlerterme (Residuen) sehen in der Tat nicht normalverteilt aus. Systematische Abweichungen sind deutlich sichtbar. Da sieht man die Güte (bzw. die Schlechte) der gefitteten Gerade sehr deutlich. 
+
+## Korrelationskoeffizienten
+
+```{r cor}
+
+x <- rank(cars$Geschwindigkeit)
+y <- rank(cars$Distanz)
+
+cor(x, y)
+
+cor(cars$Geschwindigkeit, cars$Distanz)
+
+```
+Interpretation: Ihre Vermutung stimmt, der Zusammenhang zwischen den Daten ist nicht linear sondern "nur" monoton. 
+Der Korrelationskoeffizient der rangierten Daten ist grösser als der lineare Korrelationskoeffizient der 
+nicht rangierten Daten. Falls der Zusammenhang linear wäre, wären beide Korrelationskoeffizienten gleich gross. 
+
+Man kann diese Vermutung auch einfacher überprüfen (ohne zu rangieren). Die Funktion "cor" hat eine zusätzliches Argument "method" (siehe Dokumentation). 
+
+```{r}
+
+cor(cars$Geschwindigkeit, cars$Distanz, method = "spearman")
+```
+

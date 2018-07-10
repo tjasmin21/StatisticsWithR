@@ -1,0 +1,101 @@
+---
+title: "Lösungen Anscombes Datensatz"
+author: "Nicht vergessen den Vor- und Nachnamen hier hinzuschreiben"
+date: "17/06/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, libraries, message=FALSE}
+library(ggplot2)
+```
+
+
+
+```{r cars}
+#setwd(...)
+data("anscombe")
+anscombe
+
+```
+
+
+
+## Lineare Regression
+
+Sie können einen Fit für jeden Datensatz (x_i, y_i) separat machen wie folgt: 
+```{r regression}
+
+fit1 <- lm(y1 ~ x1, data = anscombe)
+fit2 <- lm(y2 ~ x2, data = anscombe)
+#usw.
+
+#summary(fit1)
+
+#ggplot(data = anscombe, aes(x = x1, y = y1)) + 
+#  geom_point() +
+#  geom_smooth(method = "lm", col = "red")
+
+```
+
+Und dann sich die Ergebnisse mit summary(fit1), summary(fit2) usw. zeigen lassen. Und dann jeden Datensatz separat visualisieren mit der zugehörigen Regressionsgerade (siehe Code oben). Alles gut und recht. 
+
+Order Sie geben "?anscombe" in die Console ein und schauen sich 
+die Dokumentation an :). 
+
+Alle diese 4 Datensätzte besitzen die gleichen statistischen Merkmale, sehen aber ganz anders aus. 
+In der Dokumentation wird ein gutes Stück Code mitgelieft. 
+Damit lassen sich die Datensätze fitten und visualisieren. 
+Das macht das Leben halt einfacher. 
+
+```{r}
+require(stats); require(graphics)
+summary(anscombe)
+
+##-- now some "magic" to do the 4 regressions in a loop:
+ff <- y ~ x
+mods <- setNames(as.list(1:4), paste0("lm", 1:4))
+for(i in 1:4) {
+  ff[2:3] <- lapply(paste0(c("y","x"), i), as.name)
+  ## or   ff[[2]] <- as.name(paste0("y", i))
+  ##      ff[[3]] <- as.name(paste0("x", i))
+  mods[[i]] <- lmi <- lm(ff, data = anscombe)
+  print(anova(lmi))
+}
+
+## See how close they are (numerically!)
+sapply(mods, coef)
+lapply(mods, function(fm) coef(summary(fm)))
+
+## Now, do what you should have done in the first place: PLOTS
+op <- par(mfrow = c(2, 2), mar = 0.1+c(4,4,1,1), oma =  c(0, 0, 2, 0))
+for(i in 1:4) {
+  ff[2:3] <- lapply(paste0(c("y","x"), i), as.name)
+  plot(ff, data = anscombe, col = "red", pch = 21, bg = "orange", cex = 1.2,
+       xlim = c(3, 19), ylim = c(3, 13))
+  abline(mods[[i]], col = "blue")
+}
+mtext("Anscombe's 4 Regression data sets", outer = TRUE, cex = 1.5)
+par(op)
+```
+
+Man sieht wie wichtig die Visualisierung der Daten ist. Die statistischen Merkmale reichen alleine nicht aus um einen guten Model/Fit zu erstellen.
+
+## Q-Q-Plot
+```{r qqplot}
+op <- par(mfrow = c(2, 2), mar = 0.1+c(4,4,1,1), oma =  c(0, 0, 2, 0))
+for(i in 1:4) {
+  
+  qqnorm(mods[[i]]$residuals, col = "blue")
+  qqline(mods[[i]]$residuals, col = "blue")
+}
+mtext("Q-Q-Plots for Anscombe's Quartet", outer = TRUE, cex = 1.5)
+par(op)
+```
+
+In den oberen zwei Plots sieht man ganz klar, dass die Residuen nicht normalverteilt sind. Es gibt systematische Abweichungen. 
+Beim linken unteren Plot ist der Ausreiser deutlich zu erkennen, ansonsten sind die Residuen wirklich sehr schön normalverteilt (fast zu schön). Und der rechte untere Plot ist einbisschen schwer einzuordnen. Es könnte sein, dass die Residuen in diesem Fall normalverteilt sind. Nur anhand dieses Plots sieht man nicht was das wirkliche Problem beim fitten war. 
